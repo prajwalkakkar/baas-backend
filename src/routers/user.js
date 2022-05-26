@@ -14,7 +14,7 @@ router.post("/users/register", async (req, res) => {
   return res.status(406).json({ message: "Incorrect Otp" });
 
  const user = new User(req.body);
-
+ user.emaiVerified = true;
  try {
   await user.save();
 
