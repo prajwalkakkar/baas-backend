@@ -59,17 +59,21 @@ router.post("/users/send-otp", async (req, res) => {
  const email = req.query.email;
 
  const existingUser = await OTP.findOne({ email });
- if (existingUser)
-  return res.status(409).json({ message: "User already exists" });
+
+ if (existingUser) {
+  existingUser.OTP = Otp;
+  await existingUser.save();
+ } else {
+  const newotp = {
+   email,
+   OTP: Otp,
+  };
+
+  const otp = new OTP(newotp);
+  await otp.save();
+ }
 
  sendWelcomeEmail(email, Otp);
- const newotp = {
-  email,
-  OTP: Otp,
- };
-
- const otp = new OTP(newotp);
- await otp.save();
  return res.json({
   message: "OTP sent successfuly",
  });
