@@ -7,6 +7,13 @@ const router = new express.Router();
 
 // Register the user
 router.post("/users/register", async (req, res) => {
+  const existingUser = await User.findOne({ email: req.body.email });
+
+  if (existingUser)
+    return res.json({
+      message: "User already exists with email " + req.body.email,
+    });
+
   const otpUser = await OTP.findOne({ email: req.body.email });
   if (!otpUser) return res.status(404).json({ message: "User OTP not found" });
 
@@ -33,6 +40,7 @@ router.post("/users/login", async (req, res) => {
       req.body.email,
       req.body.password
     );
+    if (!user) return res.status(404).json({ message: "User not found" });
     if (!user.emaiVerified)
       return res
         .status(401)
